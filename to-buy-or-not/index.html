@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>To Buy or Not</title>
+<style>
+:root {
+  --bg: #f6f5f2;
+  --card: #ffffff;
+  --ink: #1d1c1a;
+  --muted: #6d6a64;
+  --line: #e4e1da;
+  --accent: #2f5d50;
+  --accent-ink: #ffffff;
+  --buy: #2f7a4f;
+  --buy-bg: #e6f3eb;
+  --dont: #b0413e;
+  --dont-bg: #f8e7e6;
+  --wait: #9a6b12;
+  --wait-bg: #fbf0d9;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161615; --card: #201f1d; --ink: #ecebe7; --muted: #9c9890; --line: #33312e;
+    --accent: #7fb8a4; --accent-ink: #10201b;
+    --buy: #79c99a; --buy-bg: #1d2e24; --dont: #e58a86; --dont-bg: #352120; --wait: #e2b860; --wait-bg: #33291a;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 560px; margin: 0 auto; padding: 28px 16px 64px; }
+header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+nav { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+nav button { border: 0; background: none; color: var(--muted); padding: 6px 14px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; }
+nav button.on { background: var(--accent); color: var(--accent-ink); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+.card + .card { margin-top: 14px; }
+.q { font-size: 20px; font-weight: 600; margin: 4px 0 18px; letter-spacing: -0.01em; }
+.sub { color: var(--muted); font-size: 14px; margin: 0 0 4px; }
+label.f { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
+input[type=text], input[type=number] {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg); color: var(--ink); font: inherit;
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 16px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--card); color: var(--ink); font: inherit; font-weight: 500; cursor: pointer;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.small { padding: 6px 10px; font-size: 13px; border-radius: 8px; }
+.btn.link { border: 0; background: none; color: var(--muted); padding: 6px 0; }
+.choices { display: grid; gap: 10px; }
+.choices.two { grid-template-columns: 1fr 1fr; }
+.choices .btn { padding: 16px; font-size: 16px; }
+.trail { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); color: var(--muted); }
+.verdict { text-align: center; padding: 30px 22px; }
+.verdict .big { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 6px 0; }
+.verdict.buy { background: var(--buy-bg); border-color: transparent; } .verdict.buy .big { color: var(--buy); }
+.verdict.dont { background: var(--dont-bg); border-color: transparent; } .verdict.dont .big { color: var(--dont); }
+.verdict.wait { background: var(--wait-bg); border-color: transparent; } .verdict.wait .big { color: var(--wait); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.stat b { display: block; font-size: 20px; }
+.stat span { font-size: 12px; color: var(--muted); }
+.entry { padding: 14px 0; border-top: 1px solid var(--line); }
+.entry:first-child, .sub + .entry { border-top: 0; padding-top: 0; }
+.sub + .entry { padding-top: 10px; }
+.entry .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.entry .name { font-weight: 600; word-break: break-word; }
+.tag { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+.tag.buy { color: var(--buy); background: var(--buy-bg); }
+.tag.dont { color: var(--dont); background: var(--dont-bg); }
+.tag.wait { color: var(--wait); background: var(--wait-bg); }
+.meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.path { font-size: 13px; color: var(--muted); margin: 6px 0 0; padding-left: 16px; }
+.entry .btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.due { border-color: var(--wait); }
+.empty { color: var(--muted); text-align: center; padding: 20px 0; }
+.filters { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.filters input { flex: 1; min-width: 140px; padding: 8px 12px; }
+.invoice { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.invoice a { color: var(--accent); }
+.hidden { display: none !important; }
+footer { margin-top: 24px; text-align: center; font-size: 12px; color: var(--muted); }
+footer button { font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>To buy or not?</h1>
+    <nav>
+      <button data-tab="decide" class="on">Decide</button>
+      <button data-tab="history">History</button>
+    </nav>
+  </header>
+
+  <section id="decide">
+    <div id="dueBox"></div>
+    <div id="flow"></div>
+  </section>
+
+  <section id="history" class="hidden">
+    <div class="stats" id="stats"></div>
+    <div class="filters">
+      <input type="text" id="search" placeholder="Search items">
+      <select id="filter" class="btn small">
+        <option value="">All</option>
+        <option value="buy">Buy</option>
+        <option value="dont">Don't buy</option>
+        <option value="wait">Waiting</option>
+      </select>
+    </div>
+    <div class="card" id="list"></div>
+    <footer>
+      Saved in this browser only.
+      <button class="btn link" id="exportBtn">Export history (JSON)</button>
+    </footer>
+  </section>
+</div>
+
+<input type="file" id="fileInput" class="hidden" accept="image/*,application/pdf">
+
+<script>
+// ---------- Storage ----------
+const KEY = 'tbon.entries.v1';
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(entries)); } catch (e) { alert('Could not save: ' + e.message); } }
+let entries = load();
+
+// Invoices live in IndexedDB (files are too big for localStorage)
+const idb = new Promise((res, rej) => {
+  const r = indexedDB.open('tbon', 1);
+  r.onupgradeneeded = () => r.result.createObjectStore('invoices');
+  r.onsuccess = () => res(r.result);
+  r.onerror = () => rej(r.error);
+});
+async function idbDo(mode, fn) {
+  const db = await idb;
+  return new Promise((res, rej) => {
+    const tx = db.transaction('invoices', mode);
+    const req = fn(tx.objectStore('invoices'));
+    tx.oncomplete = () => res(req && req.result);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+const putInvoice = (id, file) => idbDo('readwrite', s => s.put(file, id));
+const getInvoice = id => idbDo('readonly', s => s.get(id));
+const delInvoice = id => idbDo('readwrite', s => s.delete(id));
+
+// ---------- Decision tree (from the sketch) ----------
+const TREE = {
+  have: { q: 'Do you already have something that does the job?',
+    opts: [['Yes', 'broken'], ['No', 'importance']] },
+  broken: { q: 'Is it broken or malfunctioning?',
+    opts: [['Yes', 'push'], ['No', { v: 'dont', why: 'What you have still does the job.' }]] },
+  push: { q: 'Can you push it for some time?',
+    opts: [['Yes', 'pushDays'], ['No', 'money']] },
+  pushDays: { q: 'How long can you push?', input: 'days' },
+  importance: { q: 'How important is it that you have it?',
+    opts: [['Essential', 'money'], ['Can wait', { v: 'dont', why: 'It can wait, so let it wait.' }]] },
+  money: { q: 'Do you have the money to buy it?',
+    opts: [['Yes', { v: 'buy', why: 'You need it and you can afford it.' }], ['No', 'borrow']] },
+  borrow: { q: 'Can you, and do you want to, borrow the money?',
+    opts: [['Yes', { v: 'buy', why: 'You need it and you’re okay borrowing for it.' }],
+           ['No', { v: 'dont', why: 'Not right now. Check back in 7 days.', days: 7 }]] },
+};
+const LABEL = { buy: 'Buy', dont: "Don't buy", wait: 'Wait' };
+
+let state = null; // { item, price, node, path:[{q,a}], recheckOf }
+
+// ---------- Helpers ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = t => new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+const money = n => n == null || n === '' ? '' : Number(n).toLocaleString(undefined, { style: 'currency', currency: currencyGuess(), maximumFractionDigits: 2 });
+function currencyGuess() {
+  try { const r = new Intl.Locale(navigator.language).maximize().region;
+    return ({ IN: 'INR', GB: 'GBP', US: 'USD', CA: 'CAD', AU: 'AUD', JP: 'JPY', CH: 'CHF', SG: 'SGD', AE: 'AED' })[r] ||
+      (['DE','FR','ES','IT','NL','IE','PT','BE','AT','FI','GR'].includes(r) ? 'EUR' : 'USD');
+  } catch { return 'USD'; }
+}
+const DAY = 864e5;
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+// ---------- Decide flow ----------
+function renderStart(prefill = '', price = '', recheckOf = null) {
+  state = null;
+  $('#flow').innerHTML = `
+    <form class="card" id="startForm">
+      <p class="sub">Before you hit checkout…</p>
+      <div class="q">What do you want to buy?</div>
+      <input type="text" id="item" placeholder="e.g. New headphones" value="${esc(prefill)}" required autocomplete="off">
+      <label class="f" for="price">Price (optional, helps track what you didn’t spend)</label>
+      <input type="number" id="price" min="0" step="0.01" inputmode="decimal" placeholder="0.00" value="${esc(price)}">
+      <div style="margin-top:18px"><button class="btn primary" style="width:100%">Start</button></div>
+    </form>`;
+  $('#startForm').onsubmit = e => {
+    e.preventDefault();
+    const item = $('#item').value.trim();
+    if (!item) return;
+    const p = $('#price').value;
+    state = { item, price: p === '' ? null : Number(p), node: 'have', path: [], history: [], recheckOf };
+    renderNode();
+  };
+  if (!prefill) $('#item').focus();
+}
+
+function trailHTML() {
+  return `<div class="trail"><span class="chip"><b>${esc(state.item)}</b>${state.price != null ? ' · ' + money(state.price) : ''}</span>
+    ${state.path.map(p => `<span class="chip">${esc(p.a)}</span>`).join('')}</div>`;
+}
+
+function renderNode() {
+  const n = TREE[state.node];
+  let body;
+  if (n.input === 'days') {
+    body = `<form id="daysForm">
+      <div class="row" style="align-items:center">
+        <input type="number" id="days" min="1" max="365" value="14" required style="flex:2">
+        <span style="flex:1;color:var(--muted)">days</span>
+      </div>
+      <div style="margin-top:14px"><button class="btn primary" style="width:100%">Set reminder</button></div>
+    </form>`;
+  } else {
+    body = `<div class="choices ${n.opts.length === 2 ? 'two' : ''}">
+      ${n.opts.map((o, i) => `<button class="btn" data-i="${i}">${esc(o[0])}</button>`).join('')}</div>`;
+  }
+  $('#flow').innerHTML = `<div class="card">${trailHTML()}
+    <div class="q">${esc(n.q)}</div>${body}
+    <div style="margin-top:12px"><button class="btn link" id="back">← Back</button></div></div>`;
+
+  $('#back').onclick = () => {
+    if (!state.history.length) return renderStart(state.item, state.price ?? '', state.recheckOf);
+    state.node = state.history.pop(); state.path.pop(); renderNode();
+  };
+  if (n.input === 'days') {
+    $('#daysForm').onsubmit = e => {
+      e.preventDefault();
+      const d = Math.max(1, Math.round(Number($('#days').value)));
+      state.path.push({ q: n.q, a: `${d} days` });
+      finish({ v: 'wait', why: `Push it for ${d} days, then check again.`, days: d });
+    };
+    $('#days').select();
+  } else {
+    $('#flow').querySelectorAll('.choices .btn').forEach(b => b.onclick = () => {
+      const [label, next] = n.opts[b.dataset.i];
+      state.path.push({ q: n.q, a: label });
+      if (typeof next === 'string') { state.history.push(state.node); state.node = next; renderNode(); }
+      else finish(next);
+    });
+  }
+}
+
+function finish(out) {
+  const now = Date.now();
+  const e = {
+    id: uid(), item: state.item, price: state.price, createdAt: now,
+    path: state.path, verdict: out.v, why: out.why,
+    remindAt: out.days ? now + out.days * DAY : null,
+    reminderDone: false, recheckOf: state.recheckOf || null, invoice: null,
+  };
+  // A re-check closes the earlier reminder
+  if (state.recheckOf) { const old = entries.find(x => x.id === state.recheckOf); if (old) old.reminderDone = true; }
+  entries.unshift(e); save();
+  renderVerdict(e);
+  renderDue();
+}
+
+function renderVerdict(e) {
+  const remind = e.remindAt ? `<p class="meta">Reminder: ${fmtDate(e.remindAt)}</p>` : '';
+  $('#flow').innerHTML = `<div class="card verdict ${e.verdict}">
+    <div class="sub">${esc(e.item)}</div>
+    <div class="big">${e.verdict === 'wait' ? 'Not yet' : LABEL[e.verdict]}</div>
+    <div>${esc(e.why)}</div>${remind}
+    <div class="actions">
+      ${e.verdict === 'buy' ? `<button class="btn primary" id="vInv">Attach invoice</button>` : ''}
+      ${e.remindAt ? `<button class="btn" id="vIcs">Add to calendar</button>` : ''}
+      <button class="btn" id="vNew">Check something else</button>
+    </div>
+    <p class="meta" id="vInvStatus"></p>
+  </div>`;
+  $('#vNew').onclick = () => renderStart();
+  if ($('#vIcs')) $('#vIcs').onclick = () => downloadIcs(e);
+  if ($('#vInv')) $('#vInv').onclick = () => pickInvoice(e.id, () => {
+    const cur = entries.find(x => x.id === e.id);
+    $('#vInvStatus').textContent = cur.invoice ? `Attached: ${cur.invoice.name}` : '';
+    $('#vInv').textContent = 'Replace invoice';
+  });
+}
+
+// ---------- Reminders ----------
+function renderDue() {
+  const now = Date.now();
+  const due = entries.filter(e => e.remindAt && !e.reminderDone && e.remindAt <= now);
+  $('#dueBox').innerHTML = due.length ? `<div class="card due" style="margin-bottom:14px">
+    <div class="sub" style="color:var(--wait);font-weight:600">Time to check back</div>
+    ${due.map(e => `<div class="entry"><div class="top"><span class="name">${esc(e.item)}</span>
+      <span class="meta">since ${fmtDate(e.remindAt)}</span></div>
+      <div class="btns"><button class="btn small primary" data-re="${e.id}">Re-check now</button>
+      <button class="btn small" data-dis="${e.id}">Don’t want it anymore</button></div></div>`).join('')}
+  </div>` : '';
+  $('#dueBox').querySelectorAll('[data-re]').forEach(b => b.onclick = () => {
+    const e = entries.find(x => x.id === b.dataset.re);
+    renderStart(e.item, e.price ?? '', e.id);
+  });
+  $('#dueBox').querySelectorAll('[data-dis]').forEach(b => b.onclick = () => {
+    const e = entries.find(x => x.id === b.dataset.dis);
+    e.reminderDone = true; e.dismissed = true; save(); renderDue();
+  });
+}
+
+function downloadIcs(e) {
+  const d = new Date(e.remindAt);
+  const ymd = x => `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, '0')}${String(x.getDate()).padStart(2, '0')}`;
+  const next = new Date(d.getTime() + DAY);
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const text = s => s.replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//To Buy or Not//EN', 'BEGIN:VEVENT',
+    `UID:${e.id}@tobuyornot`, `DTSTAMP:${stamp}`,
+    `DTSTART;VALUE=DATE:${ymd(d)}`, `DTEND;VALUE=DATE:${ymd(next)}`,
+    `SUMMARY:${text('Re-check: do I still want ' + e.item + '?')}`,
+    `DESCRIPTION:${text(e.why + '\nOpen To Buy or Not and re-run the check.')}`,
+    'BEGIN:VALARM', 'TRIGGER:PT9H', 'ACTION:DISPLAY', `DESCRIPTION:${text('Re-check ' + e.item)}`, 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  saveFile(new Blob([ics], { type: 'text/calendar' }), `recheck-${e.item.replace(/\W+/g, '-').toLowerCase()}.ics`);
+}
+
+// ---------- Invoices ----------
+let pickCb = null, pickId = null;
+function pickInvoice(id, cb) { pickId = id; pickCb = cb; $('#fileInput').value = ''; $('#fileInput').click(); }
+$('#fileInput').onchange = async () => {
+  const f = $('#fileInput').files[0];
+  if (!f || !pickId) return;
+  const e = entries.find(x => x.id === pickId);
+  try {
+    await putInvoice(e.id, f);
+    e.invoice = { name: f.name, type: f.type, size: f.size, addedAt: Date.now() };
+    e.bought = true;
+    save(); pickCb && pickCb(); renderHistory();
+  } catch (err) { alert('Could not store invoice: ' + err.message); }
+};
+async function openInvoice(id) {
+  const blob = await getInvoice(id);
+  if (!blob) return alert('Invoice file not found in this browser.');
+  const url = URL.createObjectURL(blob);
+  const w = window.open(url, '_blank');
+  if (!w) saveFile(blob, entries.find(x => x.id === id).invoice.name);
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+function saveFile(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+// ---------- History ----------
+function renderHistory() {
+  const sum = (arr) => arr.reduce((s, e) => s + (Number(e.price) || 0), 0);
+  const dont = entries.filter(e => e.verdict === 'dont');
+  const buy = entries.filter(e => e.verdict === 'buy');
+  const waiting = entries.filter(e => e.verdict === 'wait' && !e.reminderDone);
+  const saved = sum(dont);
+  $('#stats').innerHTML = `
+    <div class="stat"><b>${entries.length}</b><span>decisions</span></div>
+    <div class="stat"><b>${dont.length}</b><span>talked out of${saved ? ' · ' + money(saved) : ''}</span></div>
+    <div class="stat"><b>${buy.length}</b><span>bought${waiting.length ? ` · ${waiting.length} waiting` : ''}</span></div>`;
+
+  const q = $('#search').value.trim().toLowerCase();
+  const f = $('#filter').value;
+  const list = entries.filter(e => (!f || e.verdict === f) && (!q || e.item.toLowerCase().includes(q)));
+  if (!list.length) { $('#list').innerHTML = `<div class="empty">${entries.length ? 'Nothing matches.' : 'No decisions yet.'}</div>`; return; }
+
+  $('#list').innerHTML = list.map(e => {
+    let status = '';
+    if (e.verdict === 'wait' || e.remindAt) {
+      status = e.dismissed ? ' · let go' : e.reminderDone ? ' · re-checked' :
+        (e.remindAt <= Date.now() ? ' · <b style="color:var(--wait)">check-in due</b>' : ` · check ${fmtDate(e.remindAt)}`);
+    }
+    const inv = e.invoice ? `<span class="invoice">📎 <a href="#" data-open="${e.id}">${esc(e.invoice.name)}</a></span>` : '';
+    return `<div class="entry">
+      <div class="top"><span class="name">${esc(e.item)}</span><span class="tag ${e.verdict}">${LABEL[e.verdict]}</span></div>
+      <div class="meta">${fmtDate(e.createdAt)}${e.price != null ? ' · ' + money(e.price) : ''}${status}${e.recheckOf ? ' · re-check' : ''}</div>
+      <details><summary class="meta" style="cursor:pointer">How you decided</summary>
+        <ol class="path">${e.path.map(p => `<li>${esc(p.q)} <b>${esc(p.a)}</b></li>`).join('')}</ol>
+        <div class="meta" style="padding-left:16px">→ ${esc(e.why)}</div>
+      </details>
+      <div class="btns">
+        ${inv}
+        ${e.verdict === 'buy' ? `<button class="btn small" data-inv="${e.id}">${e.invoice ? 'Replace invoice' : 'Attach invoice'}</button>` : ''}
+        ${e.remindAt && !e.reminderDone ? `<button class="btn small" data-ics="${e.id}">Add to calendar</button>` : ''}
+        <button class="btn small link" data-del="${e.id}">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const by = id => entries.find(x => x.id === id);
+  $('#list').querySelectorAll('[data-open]').forEach(a => a.onclick = ev => { ev.preventDefault(); openInvoice(a.dataset.open); });
+  $('#list').querySelectorAll('[data-inv]').forEach(b => b.onclick = () => pickInvoice(b.dataset.inv));
+  $('#list').querySelectorAll('[data-ics]').forEach(b => b.onclick = () => downloadIcs(by(b.dataset.ics)));
+  $('#list').querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+    const e = by(b.dataset.del);
+    if (!confirm(`Delete "${e.item}" from history?`)) return;
+    if (e.invoice) await delInvoice(e.id).catch(() => {});
+    entries = entries.filter(x => x.id !== e.id); save(); renderHistory(); renderDue();
+  });
+}
+$('#search').oninput = renderHistory;
+$('#filter').onchange = renderHistory;
+$('#exportBtn').onclick = () => saveFile(new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' }), 'to-buy-or-not-history.json');
+
+// ---------- Tabs ----------
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+  $('#decide').classList.toggle('hidden', b.dataset.tab !== 'decide');
+  $('#history').classList.toggle('hidden', b.dataset.tab !== 'history');
+  if (b.dataset.tab === 'history') renderHistory(); else renderDue();
+});
+
+renderDue();
+renderStart();
+</script>
+</body>
+</html>
